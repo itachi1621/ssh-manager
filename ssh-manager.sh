@@ -153,8 +153,13 @@ fi
     printf "%s${info}#  Name \t IP/Host \tPort Username${reset}\n"
     awk -F, '{print NR " " $1 " " $2 " " $3 " " $4}' "$cfg_file_name" | column -t # -t is used to align the columns,  using awk is always awkward .... but it works
 
-    printf "%s${info}Enter the number of the server you want to connect to :${reset}"
+    printf "%s${info}Enter the number of the server you want to connect to or enter 0 to cancel : ${reset}"
     read -p "" serverNumber
+
+    if [ "$serverNumber" == 0 ]
+    then
+        menu
+    fi
     # Now we  have to check if the server number is blank
     # or not a number or valid using regex (I HATE REGEX )
     #and the wc command to count the number of lines in the file
@@ -186,6 +191,10 @@ fi
     printf "%s${success}Connecting to ${serverName} ...${reset}\n"
     ssh -p "$serverPort" "$serverUser""@""$serverIp"
 
+    menu
+
+
+
  }
 
  deleteSSHServer(){
@@ -198,7 +207,7 @@ fi
     printf "%s${info}#  Name IP/Host \tPort Username${reset}\n"
     awk -F, '{print NR " " $1 " " $2 " " $3 " " $4}' "$cfg_file_name" | column -t # -t is used to align the columns,  using awk is always awkward .... but it works
 
-    printf "%s${warning}Enter the number of the server you want to delete or enter 0 to cancel :${reset}"
+    printf "%s${warning}Enter the number of the server you want to delete or enter 0 to cancel : ${reset}"
     read -p "" serverNumber
 
     #Check if the user wants to cancel
