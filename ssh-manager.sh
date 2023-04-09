@@ -61,14 +61,17 @@ addNewServerPort(){
 
 read -p "Enter the port number leave blank for default of 22 : " port
 
-#Check if the port is a number and is between 1 and 65535 (Valid Port ranges) if it is blank just use 22 which is the default port for ssh
-if ! [[ "$port" =~ ^[0-9]+$ ]] && [ -n "$port" ] || [ "$port" -gt 65535 ] || [ "$port" -lt 1 ]
+#check if the port is blank
+if [ -z "$port" ]
+then
+    port=22
+fi
+
+#Check if the port is a number and is between 1 and 65535 (Valid Port ranges)
+if ! [[ "$port" =~ ^[0-9]+$ ]] || [ "$port" -gt 65535 ] || [ "$port" -lt 1 ]
 then
     printf "%s${warning}Invalid port number${reset}\n"
     addNewServerPort
-elif [ -z "$port" ]
-then
-    port=22
 fi
 
 
@@ -93,6 +96,10 @@ fi
 
  createNewSSHCredentials(){
 
+    printf "%s${info}===========================${reset}\n"
+    echo -e "${info}Add New SSH Server${reset}"
+    printf "%s${info}===========================${reset}\n"
+
     addNewServer
     addNewServerIp
     addNewServerPort
@@ -102,15 +109,23 @@ fi
     echo "$name,$ip,$port,$user" >> "$cfg_file_name"
 
     echo -e "${success}Server added successfully${reset}"
+    read -p "Do you want to connect to the server now? (y/n) " selection -n 1 -r
+    if [[ $selection =~ ^[Yy]$ ]]
+    then
+        connectToSSHServer "qc"
+    fi
+
+    menu
 
  }
 
  listSSHCredentials(){
     fileEmptyCheck
-
+    printf "%s${info}===========================${reset}\n"
     echo -e "${info}Listing all servers${reset}"
-    #Now to use awk to list the servers in a nice format 1 , 2 , 3 etc
-    printf "%s${info}#  Name \t IP/Host \tPort Username${reset}\n"
+    printf "%s${info}===========================${reset}\n"
+    #Now to use awk to list the servers in a nice format 1 , 2 , 3 etc in a table format starting with the header but starting the numbering at from the second line
+    printf "%s${info}#  Name IP/Host Port Username${reset}\n"
     awk -F, '{print NR " " $1 " " $2 " " $3 " " $4}' "$cfg_file_name" | column -t # -t is used to align the columns,  using awk is always awkward .... but it works
 
     menu
@@ -121,9 +136,19 @@ fi
 
  connectToSSHServer(){
 
-    fileEmptyCheck
+    if [ "$1" == "qc" ] #qc is the quick connect option
+    then
+        fileEmptyCheck
+        serverName=$name
+        serverIp=$ip
+        serverPort=$port
+        serverUser=$user
+    else
 
+    fileEmptyCheck
+    printf "%s${info}===========================${reset}\n"
      echo -e "${info}Listing all servers${reset}"
+     printf "%s${info}===========================${reset}\n"
     #Now to use awk to list the servers in a nice format 1 , 2 , 3 etc
     printf "%s${info}#  Name \t IP/Host \tPort Username${reset}\n"
     awk -F, '{print NR " " $1 " " $2 " " $3 " " $4}' "$cfg_file_name" | column -t # -t is used to align the columns,  using awk is always awkward .... but it works
@@ -136,9 +161,8 @@ fi
     if [ -z "$serverNumber" ] || ! [[ "$serverNumber" =~ ^[0-9]+$ ]] || [ "$serverNumber" -gt "$(wc -l < "$cfg_file_name")" ] || [ "$serverNumber" -lt 1 ]
     then
         printf "%s${warning}Invalid server number${reset}\n"
-        listSSHCredentials # You have to love reursive functions
+        connectToSSHServer # You have to love reursive functions
     fi
-    printf "%s${info}Connecting to server ${serverNumber} ...${reset}\n"
 
         #Now to use awk to filter the server number and get the details
 
@@ -150,12 +174,16 @@ fi
         # and the last part is the action to perform on the current line
         # so if the current line number is equal to the server number then print the column n which we are storing in the variable
         #and the last part is the file to read from
+    serverName=$(awk -F, -v serverNumber="$serverNumber" 'NR==serverNumber {print $1}' "$cfg_file_name")
     serverIp=$(awk -F, -v serverNumber="$serverNumber" 'NR==serverNumber {print $2}' "$cfg_file_name")
     serverPort=$(awk -F, -v serverNumber="$serverNumber" 'NR==serverNumber {print $3}' "$cfg_file_name")
     serverUser=$(awk -F, -v serverNumber="$serverNumber" 'NR==serverNumber {print $4}' "$cfg_file_name")
 
+
+fi
     #echo $serverPort
     #Here we go connecting to the server
+    printf "%s${success}Connecting to ${serverName} ...${reset}\n"
     ssh -p "$serverPort" "$serverUser""@""$serverIp"
 
  }
@@ -163,14 +191,21 @@ fi
  deleteSSHServer(){
 
     fileEmptyCheck
-
+    printf "%s${info}===========================${reset}\n"
     echo -e "${info}Listing all servers${reset}"
+    printf "%s${info}===========================${reset}\n"
     #Now to use awk to list the servers in a nice format 1 , 2 , 3 etc
-    printf "%s${info}#  Name \t IP/Host \tPort Username${reset}\n"
+    printf "%s${info}#  Name IP/Host \tPort Username${reset}\n"
     awk -F, '{print NR " " $1 " " $2 " " $3 " " $4}' "$cfg_file_name" | column -t # -t is used to align the columns,  using awk is always awkward .... but it works
 
-    printf "%s${info}Enter the number of the server you want to delete :${reset}"
+    printf "%s${warning}Enter the number of the server you want to delete or enter 0 to cancel :${reset}"
     read -p "" serverNumber
+
+    #Check if the user wants to cancel
+    if [ "$serverNumber" -eq 0 ]
+    then
+        menu
+    fi
     # Now we  have to check if the server number is blank
     # or not a number or valid using regex (I HATE REGEX )
     #and the wc command to count the number of lines in the file
@@ -192,7 +227,7 @@ fi
 
     sed -i -e ''"$serverNumber"'d' "$cfg_file_name"
 
-    printf "%s${success}Server deleted successfully${reset}\n"
+    printf "%s${success}Server deleted successfully${reset}\n\n"
 
     listSSHCredentials
 
@@ -201,12 +236,15 @@ fi
 
  menu(){
 
-    printf "%s${info}1. Add new server${reset}\n"
-    printf "%s${info}2. Connect to a saved SSH server${reset}\n"
-    printf "%s${info}3. List servers${reset}\n"
+    printf "%s${info}===========================${reset}\n"
+    printf "%s${success}SSH Server Manager${reset}\n"
+    printf "%s${info}===========================${reset}\n"
+    printf "1. Add new server \n"
+    printf "2. Connect to a saved SSH server\n"
+    printf "3. List servers\n"
     printf "%s${warning}4. Delete a server${reset}\n"
-    printf "%s${info}5. Exit${reset}\n"
-    printf "%s${info}Enter your choice :${reset}"
+    printf "5. Exit\n"
+    printf "Enter your choice : "
     read -p "" choice
 
     case $choice in
