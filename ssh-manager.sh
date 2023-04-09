@@ -97,7 +97,7 @@ fi
  createNewSSHCredentials(){
 
     printf "%s${info}===========================${reset}\n"
-    echo -e "${info}Add New SSH Server${reset}"
+    echo -e "${info}Add New SSH Connection${reset}"
     printf "%s${info}===========================${reset}\n"
 
     addNewServer
@@ -108,8 +108,8 @@ fi
 
     echo "$name,$ip,$port,$user" >> "$cfg_file_name"
 
-    echo -e "${success}Server added successfully${reset}"
-    read -p "Do you want to connect to the server now? (y/n) " selection -n 1 -r
+    echo -e "${success}SSH Connection added successfully${reset}"
+    read -p "Do you want to connect to the added SSH server now? (y/n) " selection -n 1 -r
     if [[ $selection =~ ^[Yy]$ ]]
     then
         connectToSSHServer "qc"
@@ -246,7 +246,7 @@ fi
  menu(){
 
     printf "%s${info}===========================${reset}\n"
-    printf "%s${success}SSH Server Manager${reset}\n"
+    printf "%s${success}SSH Manager${reset}\n"
     printf "%s${info}===========================${reset}\n"
     printf "1. Add new server \n"
     printf "2. Connect to a saved SSH server\n"
