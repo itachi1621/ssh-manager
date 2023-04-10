@@ -253,7 +253,7 @@ fi
     printf "3. List Saved SSH connections \n"
     printf "%s${warning}4. Delete a saved SSH connection +${reset}\n"
     printf "5. Exit\n"
-    printf "Enter your choice : "
+    printf "Enter your choice [1-5] : "
     read -p "" choice
 
     case $choice in
