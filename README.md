@@ -48,14 +48,14 @@ chmod +x ssh-manager.sh
 ### To make available globally only to current user
 
 ```
-cp ssh-manager $HOME/.local/bin/ssh-manager
+cp ssh-manager.sh $HOME/.local/bin/ssh-manager
 
 ```
 
 ### To make available globally to all users
 
 ```
-cp ssh-manager /usr/local/bin/ssh-manager
+cp ssh-manager.sh /usr/local/bin/ssh-manager
 
 ```
 
