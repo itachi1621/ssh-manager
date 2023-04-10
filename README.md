@@ -1,6 +1,6 @@
 # ssh-manager
 
-This script is a simple CLI (Command Line Interface) SSH connection manager ,you can easily manage your SSH conenctions via the CLI
+This script is a simple CLI (Command Line Interface) SSH connection manager ,you can easily manage your SSH connections via the CLI
 without having to remember ip/hosts, ports , etc.
 
 
@@ -43,6 +43,21 @@ chmod +x ssh-manager.sh
 
 ```
 
+## Optional Install To System
+
+### To make available globally only to current user
+
+```
+cp ssh-manager $HOME/.local/bin/ssh-manager
+
+```
+
+### To make available globally to all users
+
+```
+cp ssh-manager /usr/local/bin/ssh-manager
+
+```
 
 ## Screenshots
 
