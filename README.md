@@ -55,7 +55,7 @@ cp ssh-manager.sh $HOME/.local/bin/ssh-manager
 ### To make available globally to all users
 
 ```
-cp ssh-manager.sh /usr/local/bin/ssh-manager
+sudo cp ssh-manager.sh /usr/local/bin/ssh-manager
 
 ```
 
