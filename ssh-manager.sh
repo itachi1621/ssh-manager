@@ -22,7 +22,7 @@ fi
 fileEmptyCheck(){
     if [ ! -s "$cfg_file_name" ] # -s checks if the file is empty
     then
-        printf "%s${warning}No servers added yet${reset}\n"
+        printf "%s${warning}No SSH connections added yet${reset}\n"
         menu
     fi
 }
@@ -109,7 +109,7 @@ fi
     echo "$name,$ip,$port,$user" >> "$cfg_file_name"
 
     echo -e "${success}SSH Connection added successfully${reset}"
-    read -p "Do you want to connect to the added SSH server now? (y/n) " selection -n 1 -r
+    read -p "Do you want to connect to the added SSH connection now? (y/n) " selection -n 1 -r
     if [[ $selection =~ ^[Yy]$ ]]
     then
         connectToSSHServer "qc"
@@ -122,7 +122,7 @@ fi
  listSSHCredentials(){
     fileEmptyCheck
     printf "%s${info}===========================${reset}\n"
-    echo -e "${info}Listing all servers${reset}"
+    echo -e "${info} Saved SSH Connections ${reset}"
     printf "%s${info}===========================${reset}\n"
     #Now to use awk to list the servers in a nice format 1 , 2 , 3 etc in a table format starting with the header but starting the numbering at from the second line
     printf "%s${info}#  Name IP/Host Port Username${reset}\n"
@@ -147,13 +147,13 @@ fi
 
     fileEmptyCheck
     printf "%s${info}===========================${reset}\n"
-     echo -e "${info}Listing all servers${reset}"
+     echo -e "${info} Saved SSH Connections ${reset}"
      printf "%s${info}===========================${reset}\n"
     #Now to use awk to list the servers in a nice format 1 , 2 , 3 etc
     printf "%s${info}#  Name \t IP/Host \tPort Username${reset}\n"
     awk -F, '{print NR " " $1 " " $2 " " $3 " " $4}' "$cfg_file_name" | column -t # -t is used to align the columns,  using awk is always awkward .... but it works
 
-    printf "%s${info}Enter the number of the server you want to connect to or enter 0 to cancel : ${reset}"
+    printf "%s${info}Enter the number of the SSH connection you want to connect to or enter 0 to cancel : ${reset}"
     read -p "" serverNumber
 
     if [ "$serverNumber" == 0 ]
@@ -165,7 +165,7 @@ fi
     #and the wc command to count the number of lines in the file
     if [ -z "$serverNumber" ] || ! [[ "$serverNumber" =~ ^[0-9]+$ ]] || [ "$serverNumber" -gt "$(wc -l < "$cfg_file_name")" ] || [ "$serverNumber" -lt 1 ]
     then
-        printf "%s${warning}Invalid server number${reset}\n"
+        printf "%s${warning}Invalid selection ${reset}\n"
         connectToSSHServer # You have to love reursive functions
     fi
 
@@ -201,13 +201,13 @@ fi
 
     fileEmptyCheck
     printf "%s${info}===========================${reset}\n"
-    echo -e "${info}Listing all servers${reset}"
+    echo -e "${info} Saved SSH Connections ${reset}"
     printf "%s${info}===========================${reset}\n"
     #Now to use awk to list the servers in a nice format 1 , 2 , 3 etc
     printf "%s${info}#  Name IP/Host \tPort Username${reset}\n"
     awk -F, '{print NR " " $1 " " $2 " " $3 " " $4}' "$cfg_file_name" | column -t # -t is used to align the columns,  using awk is always awkward .... but it works
 
-    printf "%s${warning}Enter the number of the server you want to delete or enter 0 to cancel : ${reset}"
+    printf "%s${warning}Enter the number of the SSH connection you want to delete or enter 0 to cancel : ${reset}"
     read -p "" serverNumber
 
     #Check if the user wants to cancel
@@ -220,7 +220,7 @@ fi
     #and the wc command to count the number of lines in the file
     if [ -z "$serverNumber" ] || ! [[ "$serverNumber" =~ ^[0-9]+$ ]] || [ "$serverNumber" -gt "$(wc -l < "$cfg_file_name")" ] || [ "$serverNumber" -lt 1 ]
     then
-        printf "%s${warning}Invalid server number${reset}\n"
+        printf "%s${warning}Invalid selection${reset}\n"
         deleteSSHServer # You have to love reursive functions
     fi
 
@@ -236,7 +236,7 @@ fi
 
     sed -i -e ''"$serverNumber"'d' "$cfg_file_name"
 
-    printf "%s${success}Server deleted successfully${reset}\n\n"
+    printf "%s${success}SSH Connection deleted successfully${reset}\n\n"
 
     listSSHCredentials
 
@@ -248,10 +248,10 @@ fi
     printf "%s${info}===========================${reset}\n"
     printf "%s${success}SSH Manager${reset}\n"
     printf "%s${info}===========================${reset}\n"
-    printf "1. Add new server \n"
-    printf "2. Connect to a saved SSH server\n"
-    printf "3. List servers\n"
-    printf "%s${warning}4. Delete a server${reset}\n"
+    printf "1. Add new SSH connection \n"
+    printf "2. Connect to a saved SSH connection \n"
+    printf "3. List Saved SSH connections \n"
+    printf "%s${warning}4. Delete a saved SSH connection +${reset}\n"
     printf "5. Exit\n"
     printf "Enter your choice : "
     read -p "" choice
