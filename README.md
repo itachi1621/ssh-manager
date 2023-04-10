@@ -48,19 +48,31 @@ chmod +x ssh-manager.sh
 
 **Main Menu**
 
-![SSH Manager Menu](https://user-images.githubusercontent.com/62318474/230794741-6c1bd224-7f99-470e-9cf3-fcae83fd75d3.png)
+
+![SSH Manager Menu](https://user-images.githubusercontent.com/62318474/230812530-d599d314-3a56-4e66-976e-9c41f6601c8e.png)
 
 
 **Add New SSH Connection**
 
+![SSH Manager Add](https://user-images.githubusercontent.com/62318474/230812732-a9550f4a-6fd7-4f6c-b24c-cd440288e670.png)
 
+**Connect to saved SSH Connection**
+
+![SSH Manager Connect](https://user-images.githubusercontent.com/62318474/230813252-e3a6178f-2202-4ccf-88df-ca7bbb6ebaa6.png)
+
+**List saved SSH connections**
+
+![SSH Manager Saved Connections](https://user-images.githubusercontent.com/62318474/230813682-cd26cd01-5555-47c1-9cb4-013f96babb79.png)
+
+**Delete a saved SSH connection**
+
+![SSH Manager Delete Connection](https://user-images.githubusercontent.com/62318474/230813990-8376c235-2585-4455-92e0-5b8cfb0d2275.png)
 
 ## Tested On
 
 - Ubuntu Server 22.04 LTS
 - Ubuntu 22.04 LTS
 - Ubuntu Server 20.04 LTS
-
 
 ## License
 This script is licensed under the MIT License.
