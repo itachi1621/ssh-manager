@@ -109,7 +109,7 @@ fi
     echo "$name,$ip,$port,$user" >> "$cfg_file_name"
 
     echo -e "${success}SSH Connection added successfully${reset}"
-    read -p "Do you want to connect to the added SSH connection now? (y/n) " selection -n 1 -r
+    read -p "Do you want to connect to the added SSH connection now? (y/n) " selection
     if [[ $selection =~ ^[Yy]$ ]]
     then
         connectToSSHServer "qc"
@@ -251,7 +251,7 @@ fi
     printf "1. Add new SSH connection \n"
     printf "2. Connect to a saved SSH connection \n"
     printf "3. List Saved SSH connections \n"
-    printf "%s${warning}4. Delete a saved SSH connection +${reset}\n"
+    printf "%s${warning}4. Delete a saved SSH connection ${reset}\n"
     printf "5. Exit\n"
     printf "Enter your choice [1-5] : "
     read -p "" choice
