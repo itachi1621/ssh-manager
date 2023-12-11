@@ -42,6 +42,20 @@ fi
 
 }
 
+editServer(){
+
+    printf "Current name is: %s \n " "$name"
+    read -p "Enter the new name or leave blank to use current name : " newName
+    printf "\n"
+
+    if [ -z "$newName" ]
+    then
+        name=$name
+    else
+        name=$newName
+    fi
+}
+
 addNewServerIp(){
 
 read -p "Enter the server IP or domain name: " ip
@@ -53,6 +67,27 @@ then
     printf "%s${warning}Invalid IP or domain name${reset}\n"
     addNewServerIp
 fi
+
+}
+
+editServerIp(){
+
+    printf "Current IP is: %s \n" "$ip"
+    read -p "Enter the new IP or domain name or leave blank to use current IP : " newIp
+    printf "\n"
+    if [ -z "$newIp" ]
+    then
+        ip=$ip
+    else
+
+        if ! [[ "$newIp" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] && ! [[ "$newIp" =~ ^([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\.)+[a-zA-Z]{2,}$ ]]
+        then
+            printf "%s${warning}Invalid IP or domain name${reset}\n"
+            editServerIp $ip
+        else
+            ip=$newIp
+        fi
+    fi
 
 }
 
@@ -78,6 +113,27 @@ fi
 
 }
 
+editServerPort(){
+
+    printf "Current port is: %s \n " "$port"
+    read -p "Enter the new port number or leave blank to use current port : " newPort
+    printf "\n"
+
+    if [ -z "$newPort" ]
+    then
+        port=$port
+    else
+
+        if ! [[ "$newPort" =~ ^[0-9]+$ ]] || [ "$newPort" -gt 65535 ] || [ "$newPort" -lt 1 ]
+            then
+                printf "%s${warning}Invalid port number${reset}\n"
+                editServerPort $port
+        else
+            port=$newPort
+        fi
+    fi
+}
+
 addNewServerUser(){
 
 
@@ -91,6 +147,20 @@ then
 fi
 
 
+
+ }
+
+ editServerUser(){
+
+    printf "Current user is %s \n " "$user"
+    read -p "Enter the new username or leave blank to use current name : " newUser
+
+    if [ -z "$newUser" ]
+    then
+        user=$user
+    else
+        user=$newUser
+    fi
 
  }
 
@@ -116,6 +186,54 @@ fi
     fi
 
     menu
+
+ }
+
+ editSSHConnection(){
+
+        fileEmptyCheck
+        printf "%s${info}===========================${reset}\n"
+        echo -e "${info} Saved SSH Connections ${reset}"
+        printf "%s${info}===========================${reset}\n"
+        #Now to use awk to list the servers in a nice format 1 , 2 , 3 etc
+        printf "%s${info}#  Name IP/Host \tPort Username${reset}\n"
+        awk -F, '{print NR " " $1 " " $2 " " $3 " " $4}' "$cfg_file_name" | column -t # -t is used to align the columns,  using awk is always awkward .... but it works
+
+        printf "%s${warning}Enter the number of the SSH connection you want to edit or enter 0 to cancel : ${reset}"
+        read -p "" serverNumber
+
+        #Check if the user wants to cancel
+        if [ "$serverNumber" -eq 0 ]
+        then
+            menu
+        fi
+
+        if [ -z "$serverNumber" ] || ! [[ "$serverNumber" =~ ^[0-9]+$ ]] || [ "$serverNumber" -gt "$(wc -l < "$cfg_file_name")" ] || [ "$serverNumber" -lt 1 ]
+        then
+            printf "%s${warning}Invalid selection${reset}\n"
+            editSSHConnection # You have to love reursive functions
+        fi
+
+
+        #Now to use awk to filter the server number and get the details name,ip,host etc
+        name=$(awk -F, -v serverNumber="$serverNumber" 'NR==serverNumber {print $1}' "$cfg_file_name")
+        ip=$(awk -F, -v serverNumber="$serverNumber" 'NR==serverNumber {print $2}' "$cfg_file_name")
+        port=$(awk -F, -v serverNumber="$serverNumber" 'NR==serverNumber {print $3}' "$cfg_file_name")
+        user=$(awk -F, -v serverNumber="$serverNumber" 'NR==serverNumber {print $4}' "$cfg_file_name")
+
+        editServer
+        editServerIp
+        editServerPort
+        editServerUser
+
+        #Now to replace the selected lines info with the updated info to the file
+
+        sed -i "${serverNumber}s/.*/$name,$ip,$port,$user/" "$cfg_file_name"
+        printf "%s${success}SSH Connection has been edited${reset}\n"
+        menu
+
+
+
 
  }
 
@@ -250,18 +368,20 @@ fi
     printf "%s${info}===========================${reset}\n"
     printf "1. Add new SSH connection \n"
     printf "2. Connect to a saved SSH connection \n"
-    printf "3. List Saved SSH connections \n"
-    printf "%s${warning}4. Delete a saved SSH connection ${reset}\n"
-    printf "5. Exit\n"
-    printf "Enter your choice [1-5] : "
+    printf "3. Edit a saved SSH connection \n"
+    printf "4. List Saved SSH connections \n"
+    printf "%s${warning}5. Delete a saved SSH connection ${reset}\n"
+    printf "6. Exit\n"
+    printf "Enter your choice [1-6] : "
     read -p "" choice
 
     case $choice in
         1) createNewSSHCredentials;;
         2) connectToSSHServer;;
-        3) listSSHCredentials;;
-        4) deleteSSHServer;;
-        5) exit;;
+        3) editSSHConnection;;
+        4) listSSHCredentials;;
+        5) deleteSSHServer;;
+        6) exit;;
         *) printf "%s${warning}Invalid choice${reset}\n"; menu;;
     esac
 
