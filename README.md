@@ -7,6 +7,7 @@ without having to remember ip/hosts, ports , etc.
 ## Features
 - Easily manage your SSH connections and connect to them quickly.
 - Add new SSH connections.
+- Edit exsisting SSH connections
 - Delete old SSH connections.
 
 ## Requirements
@@ -64,12 +65,18 @@ sudo cp ssh-manager.sh /usr/local/bin/ssh-manager
 **Main Menu**
 
 
-![SSH Manager Menu](https://user-images.githubusercontent.com/62318474/230812530-d599d314-3a56-4e66-976e-9c41f6601c8e.png)
+![SSH Manager Menu](https://github.com/itachi1621/ssh-manager/assets/62318474/e28b12ea-6fcf-44f3-80eb-614d46cf0886)
 
 
 **Add New SSH Connection**
 
 ![SSH Manager Add](https://user-images.githubusercontent.com/62318474/230812732-a9550f4a-6fd7-4f6c-b24c-cd440288e670.png)
+
+
+**Edit SSH Connection**
+
+![SSH Manager Edit](https://github.com/itachi1621/ssh-manager/assets/62318474/fef91e0e-1db7-4606-bf0e-1e8727a147e6)
+
 
 **Connect to saved SSH Connection**
 
