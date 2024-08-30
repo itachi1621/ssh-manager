@@ -95,6 +95,7 @@ sudo cp ssh-manager.sh /usr/local/bin/ssh-manager
 - Ubuntu Server 22.04 LTS
 - Ubuntu 22.04 LTS
 - Ubuntu Server 20.04 LTS
+- Debian 12
 
 ## License
 This script is licensed under the MIT License.
