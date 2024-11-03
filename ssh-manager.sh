@@ -27,7 +27,7 @@ fileEmptyCheck(){
     fi
 }
 
-addNewServer(){
+addNewServerName(){
 
 
 read -p "Enter the server name/alias: " name
@@ -36,13 +36,13 @@ read -p "Enter the server name/alias: " name
 if [ -z "$name" ] # -z checks if the string is empty
 then
     printf "%s${warning}Server name cannot be blank${reset}\n"
-    addNewServer
+    addNewServerName
 fi
 
 
 }
 
-editServer(){
+editServerName(){
 
     printf "Current name is: %s \n " "$name"
     read -p "Enter the new name or leave blank to use current name : " newName
@@ -150,7 +150,7 @@ fi
 
  }
 
- editServerUser(){
+editServerUser(){
 
     printf "Current user is %s \n " "$user"
     read -p "Enter the new username or leave blank to use current name : " newUser
@@ -180,7 +180,7 @@ then
 fi
 }
 
- editServerKeyFile(){
+editServerKeyFile(){
 
     printf "Current key file is %s \n " "$keyfile"
     read -p "Enter the path to the key file or leave blank to use current key file: " newKeyFile
@@ -201,21 +201,33 @@ fi
 
  }
 
+addNewServerOption(){
+    read -p "Enter the options leave blank if not used: " option
 
- createNewSSHCredentials(){
+}
+
+editServerOption(){
+
+    printf "Current option is %s \n " "$option"
+    read -p "Enter the path to the key file or leave blank to use current option: " newOption
+ }
+
+
+createNewSSHCredentials(){
 
     printf "%s${info}===========================${reset}\n"
     echo -e "${info}Add New SSH Connection${reset}"
     printf "%s${info}===========================${reset}\n"
 
-    addNewServer
+    addNewServerName
     addNewServerIp
     addNewServerPort
     addNewServerUser
     addNewServerKeyFile
+    addNewServerOption
 
 
-    echo "$name,$ip,$port,$user,$keyfile" >> "$cfg_file_name"
+    echo "$name,$ip,$port,$user,$keyfile,$option," >> "$cfg_file_name"
 
     echo -e "${success}SSH Connection added successfully${reset}"
     read -p "Do you want to connect to the added SSH connection now? (y/n) " selection
@@ -236,7 +248,7 @@ fi
         printf "%s${info}===========================${reset}\n"
         #Now to use awk to list the servers in a nice format 1 , 2 , 3 etc
         printf "%s${info}#  Name IP/Host \tPort Username\tKey File${reset}\n"
-        awk -F, '{print NR " " $1 " " $2 " " $3 " " $4 " " $5}' "$cfg_file_name" | column -t # -t is used to align the columns,  using awk is always awkward .... but it works
+        awk -F, '{print NR " " $1 " " $2 " " $3 " " $4 " " $5 " " $6}' "$cfg_file_name" | column -t # -t is used to align the columns,  using awk is always awkward .... but it works
 
         printf "%s${warning}Enter the number of the SSH connection you want to edit or enter 0 to cancel : ${reset}"
         read -p "" serverNumber
@@ -260,16 +272,18 @@ fi
         port=$(awk -F, -v serverNumber="$serverNumber" 'NR==serverNumber {print $3}' "$cfg_file_name")
         user=$(awk -F, -v serverNumber="$serverNumber" 'NR==serverNumber {print $4}' "$cfg_file_name")
         keyfile=$(awk -F, -v serverNumber="$serverNumber" 'NR==serverNumber {print $5}' "$cfg_file_name")
+        option=$(awk -F, -v serverNumber="$serverNumber" 'NR==serverNumber {print $6}' "$cfg_file_name")
 
-        editServer
+        editServerName
         editServerIp
         editServerPort
         editServerUser
         editServerKeyFile
+        editServerOption
 
         #Now to replace the selected lines info with the updated info to the file
 
-        sed -i "${serverNumber}s/.*/$name,$ip,$port,$user,$keyfile/" "$cfg_file_name"
+        sed -i "${serverNumber}s/.*/$name,$ip,$port,$user,$keyfile,$option/" "$cfg_file_name"
         printf "%s${success}SSH Connection has been edited${reset}\n"
         menu
 
@@ -278,22 +292,21 @@ fi
 
  }
 
- listSSHCredentials(){
+listSSHCredentials(){
     fileEmptyCheck
     printf "%s${info}===========================${reset}\n"
     echo -e "${info} Saved SSH Connections ${reset}"
     printf "%s${info}===========================${reset}\n"
     #Now to use awk to list the servers in a nice format 1 , 2 , 3 etc in a table format starting with the header but starting the numbering at from the second line
-    printf "%s${info}#  Name IP/Host Port Username Key file${reset}\n"
-    awk -F, '{print NR " " $1 " " $2 " " $3 " " $4 " " $5}' "$cfg_file_name" | column -t # -t is used to align the columns,  using awk is always awkward .... but it works
+    printf "%s${info}#  Name IP/Host Port Username Key file Option${reset}\n"
+    # -t is used to align the columns,  using awk is always awkward .... but it works
+    awk -F, '{print NR " " $1 " " $2 " " $3 " " $4 " " $5 " " $6}' "$cfg_file_name" | column -t
 
     menu
 
-
-
  }
 
- connectToSSHServer(){
+connectToSSHServer(){
 
     if [ "$1" == "qc" ] #qc is the quick connect option
     then
@@ -303,6 +316,7 @@ fi
         serverPort=$port
         serverUser=$user
         serverKeyFile=$keyfile
+        serverOpttion=$option
     else
 
     fileEmptyCheck
@@ -311,7 +325,7 @@ fi
      printf "%s${info}===========================${reset}\n"
     #Now to use awk to list the servers in a nice format 1 , 2 , 3 etc
     printf "%s${info}#  Name \t IP/Host \tPort Username\tKey file${reset}\n"
-    awk -F, '{print NR " " $1 " " $2 " " $3 " " $4 " " $5}' "$cfg_file_name" | column -t # -t is used to align the columns,  using awk is always awkward .... but it works
+    awk -F, '{print NR " " $1 " " $2 " " $3 " " $4 " " $5 " " $6}' "$cfg_file_name" | column -t # -t is used to align the columns,  using awk is always awkward .... but it works
 
     printf "%s${info}Enter the number of the SSH connection you want to connect to or enter 0 to cancel : ${reset}"
     read -p "" serverNumber
@@ -344,7 +358,8 @@ fi
     serverPort=$(awk -F, -v serverNumber="$serverNumber" 'NR==serverNumber {print $3}' "$cfg_file_name")
     serverUser=$(awk -F, -v serverNumber="$serverNumber" 'NR==serverNumber {print $4}' "$cfg_file_name")
     serverKeyFile=$(awk -F, -v serverNumber="$serverNumber" 'NR==serverNumber {print $5}' "$cfg_file_name")
-
+    serverOption=$(awk -F, -v serverNumber="$serverNumber" 'NR==serverNumber {print $6}' "$cfg_file_name")
+    echo "Option=$serverOption"
 
 fi
     #echo $serverPort
@@ -352,9 +367,13 @@ fi
     printf "%s${success}Connecting to ${serverName} ...${reset}\n"
     if [ -z $serverKeyFile ]
     then
-        ssh -p "$serverPort" "$serverUser""@""$serverIp"
+        commande="ssh -p "$serverPort" "$serverUser""@""$serverIp" "$serverOption""
+        #echo $commande
+        $commande
     else
-        ssh -i "$serverKeyFile" -p "$serverPort" "$serverUser""@""$serverIp"
+        commande="ssh -i "$serverKeyFile" -p "$serverPort" "$serverUser""@""$serverIp" "$serverOption""
+        #echo $commande
+        $commande
     fi
     menu
 
@@ -413,20 +432,20 @@ fi
     printf "%s${info}===========================${reset}\n"
     printf "%s${success}SSH Manager${reset}\n"
     printf "%s${info}===========================${reset}\n"
-    printf "1. Add new SSH connection \n"
+    printf "1. List Saved SSH connections \n"
     printf "2. Connect to a saved SSH connection \n"
-    printf "3. Edit a saved SSH connection \n"
-    printf "4. List Saved SSH connections \n"
+    printf "3. Add new SSH connection \n"
+    printf "4. Edit a saved SSH connection \n"
     printf "%s${warning}5. Delete a saved SSH connection ${reset}\n"
     printf "6. Exit\n"
     printf "Enter your choice [1-6] : "
     read -p "" choice
 
     case $choice in
-        1) createNewSSHCredentials;;
+        1) listSSHCredentials;;
         2) connectToSSHServer;;
-        3) editSSHConnection;;
-        4) listSSHCredentials;;
+        3) createNewSSHCredentials;;
+        4) editSSHConnection;;
         5) deleteSSHServer;;
         6) exit;;
         *) printf "%s${warning}Invalid choice${reset}\n"; menu;;
